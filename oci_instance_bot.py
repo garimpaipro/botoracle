@@ -140,7 +140,7 @@ def get_oci_config():
             logger.error("Credenciais OCI não encontradas! Defina as variáveis de ambiente ou o arquivo ~/.oci/config.")
             sys.exit(1)
 
-    oci.config.validate(config)
+    oci.config.validate_config(config)
     return config
 
 def get_vnic_ip(compute_client, network_client, instance_id: str, compartment_id: str) -> str:
