@@ -113,8 +113,11 @@ def get_oci_config():
         elif key_content:
             # Caso a chave venha como string (ex: GitHub Secrets)
             key_text = key_content.strip()
+            key_text = key_text.replace("\r\n", "\n").replace("\r", "\n")
             if "\\n" in key_text:
                 key_text = key_text.replace("\\n", "\n")
+            if not key_text.endswith("\n"):
+                key_text += "\n"
             
             # Grava em um arquivo temporário seguro
             temp_key = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".pem")
