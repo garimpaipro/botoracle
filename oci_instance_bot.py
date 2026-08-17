@@ -91,13 +91,16 @@ def get_oci_config():
     Constrói o dicionário de configuração da OCI.
     Prioriza variáveis de ambiente e fallback para arquivo ~/.oci/config.
     """
-    user_ocid = os.getenv("OCI_USER_OCID")
-    tenancy_ocid = os.getenv("OCI_TENANCY_OCID")
-    fingerprint = os.getenv("OCI_FINGERPRINT")
-    region = os.getenv("OCI_REGION")
-    key_file = os.getenv("OCI_KEY_FILE")
+    def clean_str(val):
+        return val.strip().replace("\r", "").replace("\n", "") if val else ""
+
+    user_ocid = clean_str(os.getenv("OCI_USER_OCID"))
+    tenancy_ocid = clean_str(os.getenv("OCI_TENANCY_OCID"))
+    fingerprint = clean_str(os.getenv("OCI_FINGERPRINT"))
+    region = clean_str(os.getenv("OCI_REGION"))
+    key_file = clean_str(os.getenv("OCI_KEY_FILE"))
     key_content = os.getenv("OCI_KEY_CONTENT")
-    config_file = os.getenv("OCI_CONFIG_FILE", "~/.oci/config")
+    config_file = clean_str(os.getenv("OCI_CONFIG_FILE", "~/.oci/config"))
 
     # Se as variáveis de ambiente principais existirem, constrói config dinâmico
     if user_ocid and tenancy_ocid and fingerprint and region:
@@ -164,13 +167,16 @@ def create_instance_retry_loop(args):
     compute_client = oci.core.ComputeClient(config)
     network_client = oci.core.VirtualNetworkClient(config)
 
+    def clean_str(val):
+        return val.strip().replace("\r", "").replace("\n", "") if val else ""
+
     # Parâmetros da instância
-    compartment_id = os.getenv("OCI_COMPARTMENT_OCID") or config.get("tenancy")
-    availability_domain = os.getenv("OCI_AVAILABILITY_DOMAIN")
-    subnet_id = os.getenv("OCI_SUBNET_OCID")
-    image_id = os.getenv("OCI_IMAGE_OCID")
-    shape = os.getenv("OCI_SHAPE", "VM.Standard.A1.Flex")
-    instance_name = os.getenv("OCI_INSTANCE_NAME", "Oracle-Free-ARM")
+    compartment_id = clean_str(os.getenv("OCI_COMPARTMENT_OCID") or config.get("tenancy"))
+    availability_domain = clean_str(os.getenv("OCI_AVAILABILITY_DOMAIN"))
+    subnet_id = clean_str(os.getenv("OCI_SUBNET_OCID"))
+    image_id = clean_str(os.getenv("OCI_IMAGE_OCID"))
+    shape = clean_str(os.getenv("OCI_SHAPE", "VM.Standard.A1.Flex")) or "VM.Standard.A1.Flex"
+    instance_name = clean_str(os.getenv("OCI_INSTANCE_NAME", "Oracle-Free-ARM")) or "Oracle-Free-ARM"
     ocpus = float(os.getenv("OCI_OCPUS", "4"))
     memory_in_gbs = float(os.getenv("OCI_MEMORY_IN_GBS", "24"))
     boot_volume_size = int(os.getenv("OCI_BOOT_VOLUME_SIZE_IN_GBS", "50"))
