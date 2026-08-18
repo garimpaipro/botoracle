@@ -116,6 +116,16 @@ def get_oci_config():
             key_text = key_text.replace("\r\n", "\n").replace("\r", "\n")
             if "\\n" in key_text:
                 key_text = key_text.replace("\\n", "\n")
+            
+            # Garantir extração exata do bloco PEM
+            if "-----BEGIN" in key_text and "-----END" in key_text:
+                begin_idx = key_text.find("-----BEGIN")
+                end_marker = "-----END"
+                end_idx = key_text.find(end_marker, begin_idx)
+                end_line_close = key_text.find("-----", end_idx + len(end_marker))
+                if end_line_close != -1:
+                    key_text = key_text[begin_idx:end_line_close + 5].strip() + "\n"
+
             if not key_text.endswith("\n"):
                 key_text += "\n"
             
