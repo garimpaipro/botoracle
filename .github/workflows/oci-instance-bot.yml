@@ -2,8 +2,8 @@ name: OCI Auto Instance Creator Bot (24/7 Retry)
 
 on:
   schedule:
-    # Executa a cada 15 minutos (tempo de descanso entre jobs do GitHub)
-    - cron: '*/15 * * * *'
+    # Executa a cada 5 minutos se não houver job rodando
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -15,6 +15,7 @@ on:
 jobs:
   oci-capacity-retry:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -44,8 +45,8 @@ jobs:
           OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
           OCI_INSTANCE_NAME: ${{ secrets.OCI_INSTANCE_NAME || 'Oracle-Free-ARM' }}
           OCI_SHAPE: ${{ secrets.OCI_SHAPE || 'VM.Standard.A1.Flex' }}
-          OCI_OCPUS: ${{ secrets.OCI_OCPUS || '4' }}
-          OCI_MEMORY_IN_GBS: ${{ secrets.OCI_MEMORY_IN_GBS || '24' }}
+          OCI_OCPUS: ${{ secrets.OCI_OCPUS || '2' }}
+          OCI_MEMORY_IN_GBS: ${{ secrets.OCI_MEMORY_IN_GBS || '12' }}
           OCI_BOOT_VOLUME_SIZE_IN_GBS: ${{ secrets.OCI_BOOT_VOLUME_SIZE_IN_GBS || '50' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -54,6 +55,6 @@ jobs:
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             python oci_instance_bot.py --dry-run
           else
-            # Executa retries continuos por ate 12 minutos por rotina (intervalo de 45 segundos)
-            python oci_instance_bot.py --timeout 12 --interval 45
+            # Roda continuamente por até 350 minutos (5.8 horas direto sem pausa!) com tentativas a cada 20 segundos
+            python oci_instance_bot.py --timeout 350 --interval 20
           fi
